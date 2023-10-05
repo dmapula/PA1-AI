@@ -65,4 +65,11 @@ if __name__ == "__main__":
     map_file = sys.argv[1]
     dimensions, start, goal, grid = read_map(map_file)
 
-    path = iterative_deepening
+    path = iterative_deepening_search(start, goal, grid)
+
+    if path:
+        print("Path found:", path)
+        print("Cost of the path:", sum(grid[row][col] for row, col in path))
+    else:
+        print("No path found.")
+
