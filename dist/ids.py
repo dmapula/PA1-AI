@@ -49,7 +49,7 @@ def depth_limited_dfs(start, goal, grid, depth_limit):
     return dfs(Node(start[0], start[1], 0), depth_limit)
 
 # Iterative Deepening Search algorithm
-def ids(start, goal, grid):
+def ids_search(start, goal, grid):
     max_depth = 1
     while True:
         path = depth_limited_dfs(start, goal, grid, max_depth)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     map_file = sys.argv[1]
     dimensions, start, goal, grid = read_map(map_file)
 
-    path = ids(start, goal, grid)
+    path = ids_search(start, goal, grid)
 
     if path:
         print("Path found:", path)
