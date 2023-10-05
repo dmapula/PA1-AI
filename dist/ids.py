@@ -74,7 +74,7 @@ if __name__ == "__main__":
     if algorithm == "ids":
         path, nodes_expanded, max_memory, runtime = ids_search(start, goal, grid, time_cutoff)
     else:
-        print("Invalid algorithm choice. Use 'astar'.")
+        print("Invalid algorithm choice. Use 'ids'.")
         sys.exit(1)
 
     if path is not None:
