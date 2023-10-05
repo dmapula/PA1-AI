@@ -58,18 +58,33 @@ def ids_search(start, goal, grid):
         max_depth += 1
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python Ids.py my_map.txt")
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage: python Ids.py my_map.txt ids time_cutoff(ms)")
         sys.exit(1)
 
     map_file = sys.argv[1]
+    algorithm = sys.argv[2]
+    time_cutoff = int(sys.argv[3])
+
     dimensions, start, goal, grid = read_map(map_file)
 
-    path = ids_search(start, goal, grid)
-
-    if path:
-        print("Path found:", path)
-        print("Cost of the path:", sum(grid[row][col] for row, col in path))
+    if algorithm == "ids":
+        path, nodes_expanded, max_memory, runtime = ids_search(start, goal, grid, time_cutoff)
     else:
-        print("No path found.")
+        print("Invalid algorithm choice. Use 'ids'.")
+        sys.exit(1)
 
+    if path is not None:
+        print("Cost of the path:", sum(grid[row][col] for row, col in path))
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds:", runtime)
+        print("Path as a sequence of coordinates:", path)
+    else:
+        print("Cost of the path: -1")
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds: -1")
+        print("Path as a sequence of coordinates: NO PATH")
