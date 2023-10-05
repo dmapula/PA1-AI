@@ -59,7 +59,7 @@ def ids(start, goal, grid):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python IDS.py my_map.txt")
+        print("Usage: python Ids.py my_map.txt")
         sys.exit(1)
 
     map_file = sys.argv[1]
