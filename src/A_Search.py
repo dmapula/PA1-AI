@@ -68,11 +68,11 @@ if __name__ == "__main__":
         print("Usage: python pathfinding.py my_map.txt astar time_cutoff(ms)")
         sys.exit(1)
 
-    map_file = sys.argv[1]
+    my_map = sys.argv[1]
     algorithm = sys.argv[2]
     time_cutoff = int(sys.argv[3])
 
-    dimensions, start, goal, grid = read_map(map_file)
+    dimensions, start, goal, grid = read_map(my_map)
 
     if algorithm == "astar":
         path, nodes_expanded, runtime = astar_search(start, goal, grid, time_cutoff)
