@@ -1,5 +1,6 @@
 from queue import PriorityQueue
 import time
+import sys
 
 # Define a class to represent nodes in the search tree
 class Node:
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 4:
-        print("Usage: python pathfinding.py my_map.txt astar time_cutoff(ms)")
+        print("Usage: python A_Search.py my_map.txt astar time_cutoff(ms)")
         sys.exit(1)
 
     map_file = sys.argv[1]
