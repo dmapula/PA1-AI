@@ -19,7 +19,8 @@ def read_map(filename):
     return dimensions, start, goal, grid
 
 # Depth-limited DFS function
-def depth_limited_dfs(start, goal, grid, depth_limit):
+def depth_limited_dfs(start, goal, grid, depth_limit, time_cutoff):
+    start_time = time.time()
     visited = set()
 
     def dfs(node, depth):
@@ -34,7 +35,7 @@ def depth_limited_dfs(start, goal, grid, depth_limit):
             path.reverse()
             return path
 
-        if depth <= 0:
+        if depth <= 0 or (time.time() - start_time) * 1000 > time_cutoff:
             return None
 
         moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -48,11 +49,11 @@ def depth_limited_dfs(start, goal, grid, depth_limit):
 
     return dfs(Node(start[0], start[1], 0), depth_limit)
 
-# Iterative Deepening Search algorithm
-def ids_search(start, goal, grid):
+# Iterative Deepening Search algorithm with time cut-off
+def ids_search(start, goal, grid, time_cutoff):
     max_depth = 1
     while True:
-        path = depth_limited_dfs(start, goal, grid, max_depth)
+        path = depth_limited_dfs(start, goal, grid, max_depth, time_cutoff)
         if path:
             return path
         max_depth += 1
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     if algorithm == "ids":
         path, nodes_expanded, max_memory, runtime = ids_search(start, goal, grid, time_cutoff)
     else:
-        print("Invalid algorithm choice. Use 'ids'.")
+        print("Invalid algorithm choice. Use 'astar'.")
         sys.exit(1)
 
     if path is not None:
