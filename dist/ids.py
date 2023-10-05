@@ -54,6 +54,12 @@ def read_grid_from_file(file_path):
 
 # Test the IDS algorithm with grid from file
 
+testcase0 = "dist/my_map.txt"  # Provide the correct path to your grid file
+grid_graph0 = read_grid_from_file(testcase0)
+start_node = (0, 0)  # Starting position
+goal_node = (4, 4)   # Goal position
+max_depth = 5         # Maximum depth limit
+print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph0, start_node,goal_node, max_depth)))
 
 testcase1 = "dist/5x5.txt"  # Provide the correct path to your grid file
 grid_graph1 = read_grid_from_file(testcase1)
@@ -74,12 +80,12 @@ grid_graph3 = read_grid_from_file(testcase3)
 start_node = (0, 0)  # Starting position
 goal_node = (14, 14)   # Goal position
 max_depth = 15         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph2, start_node,goal_node, max_depth)))
+print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph3, start_node,goal_node, max_depth)))
 
 testcase4 = 'dist/20x20.txt'  # Provide the correct path to your grid file
 grid_graph4 = read_grid_from_file(testcase4)
 start_node = (0, 0)  # Starting position
-goal_node = (4, 4)   # Goal position
-max_depth = 5         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph3, start_node,goal_node, max_depth)))
+goal_node = (19, 19)   # Goal position
+max_depth = 20         # Maximum depth limit
+print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph4, start_node,goal_node, max_depth)))
 
