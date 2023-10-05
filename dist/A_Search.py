@@ -1,17 +1,20 @@
 from queue import PriorityQueue
 import time
-import sys
 
 # Define a class to represent nodes in the search tree
 class Node:
     def __init__(self, row, col, cost, parent=None):
-        self.row = row            # Row coordinate of the node
-        self.col = col            # Column coordinate of the node
-        self.cost = cost          # Cost to reach this node from the start
-        self.parent = parent      # Reference to the parent node in the search tree
+        self.row = row
+        self.col = col
+        self.cost = cost
+        self.parent = parent
 
     def __lt__(self, other):
-        return self.cost < other.cost  # Comparator for priority queue
+        return self.cost < other.cost
+
+# Heuristic function (Manhattan distance)
+def manhattan_distance(node, goal):
+    return abs(node.row - goal[0]) + abs(node.col - goal[1])
 
 # Function to read the map data from a file and store source/goal nodes
 def read_map(filename):
@@ -22,47 +25,43 @@ def read_map(filename):
         grid = [list(map(int, line.split())) for line in file] # Read the grid map
     return dimensions, start, goal, grid
 
-# Function to calculate the Manhattan distance heuristic
-def manhattan_distance(node, goal):
-    return abs(node.row - goal[0]) + abs(node.col - goal[1])
-
-# A* Search algorithm with repeat-state checking and a time cutoff
+# A* Search algorithm with optimizations
 def astar_search(start, goal, grid, time_cutoff):
-    visited = set()  # Set to store visited nodes
-    queue = PriorityQueue()  # Priority queue for A* search
+    visited = set()
+    queue = PriorityQueue()
     start_node = Node(start[0], start[1], 0)
     queue.put(start_node)
-    start_time = time.time()  # Start time to measure runtime
-    max_memory = 0  # Variable to track the maximum number of nodes held in memory
+    start_time = time.time()
+    max_memory = 0
 
     while not queue.empty():
-        current_node = queue.get()  # Get the node with the lowest cost
+        current_node = queue.get()
 
         if (current_node.row, current_node.col) == goal:
             path = []
             while current_node:
                 path.append((current_node.row, current_node.col))
                 current_node = current_node.parent
-            path.reverse()  # Reverse the path to get it from start to goal
+            path.reverse()
             end_time = time.time()
-            runtime = (end_time - start_time) * 1000  # Calculate runtime in milliseconds
+            runtime = (end_time - start_time) * 1000
             return path, len(visited), max_memory, runtime
 
-        visited.add((current_node.row, current_node.col))  # Mark the node as visited
+        visited.add((current_node.row, current_node.col))
 
-        moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]  # Possible moves: down, up, right, left
+        moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for dr, dc in moves:
             r, c = current_node.row + dr, current_node.col + dc
             if (0 <= r < len(grid)) and (0 <= c < len(grid[0])) and (r, c) not in visited and grid[r][c]:
                 cost = current_node.cost + grid[r][c] + manhattan_distance(Node(r, c, 0), goal)
                 queue.put(Node(r, c, cost, current_node))
-                max_memory = max(max_memory, queue.qsize())  # Update max memory
+                max_memory = max(max_memory, queue.qsize())
 
         # Check time cutoff
         if (time.time() - start_time) * 1000 > time_cutoff:
-            return None, len(visited), max_memory, None  # Time cutoff reached, no result
+            return None, len(visited), max_memory, None
 
-    return None, len(visited), max_memory, None  # No path found
+    return None, len(visited), max_memory, None
 
 if __name__ == "__main__":
     import sys
@@ -93,5 +92,5 @@ if __name__ == "__main__":
         print("Cost of the path: -1")
         print("Number of nodes expanded:", nodes_expanded)
         print("Maximum number of nodes held in memory:", max_memory)
-        print("Runtime of the algorithm in milliseconds: NULL")
-        print("Path as a sequence of coordinates: NULL")
+        print("Runtime of the algorithm in milliseconds: -1")
+        print("Path as a sequence of coordinates: NO PATH")
