@@ -19,10 +19,7 @@ def read_map(filename):
     return dimensions, start, goal, grid
 
 # Depth-limited DFS function
-def depth_limited_dfs(start, goal, grid, depth_limit, time_cutoff):
-    start_time = time.time()
-    visited = set()
-
+def depth_limited_dfs(start, goal, grid, depth_limit, time_cutoff, visited, start_time):
     def dfs(node, depth):
         nonlocal visited
         visited.add((node.row, node.col))
@@ -52,15 +49,28 @@ def depth_limited_dfs(start, goal, grid, depth_limit, time_cutoff):
 # Iterative Deepening Search algorithm with time cut-off
 def ids_search(start, goal, grid, time_cutoff):
     max_depth = 1
+    nodes_expanded = 0
+    max_memory = 0
+    runtime = 0
+    path = None
+
     while True:
-        path = depth_limited_dfs(start, goal, grid, max_depth, time_cutoff)
-        if path:
-            return path
+        visited = set()  # Initialize the visited set for each iteration
+        start_time = time.time()  # Store the start time for this iteration
+        path = depth_limited_dfs(start, goal, grid, max_depth, time_cutoff, visited, start_time)
+        nodes_expanded += len(visited)
+        max_memory = max(max_memory, len(visited))
+        end_time = time.time()
+        runtime = (end_time - start_time) * 1000
+
+        if path or runtime > time_cutoff:
+            break
+
         max_depth += 1
 
-if __name__ == "__main__":
-    import sys
+    return path, nodes_expanded, max_memory, runtime
 
+if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python Ids.py my_map.txt ids time_cutoff(ms)")
         sys.exit(1)
@@ -89,3 +99,4 @@ if __name__ == "__main__":
         print("Maximum number of nodes held in memory:", max_memory)
         print("Runtime of the algorithm in milliseconds: -1")
         print("Path as a sequence of coordinates: NO PATH")
+
