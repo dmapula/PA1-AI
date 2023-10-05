@@ -25,13 +25,14 @@ def read_map(filename):
 def manhattan_distance(node, goal):
     return abs(node.row - goal[0]) + abs(node.col - goal[1])
 
-# A* Search algorithm
-def astar_search(start, goal, grid, time_cutoff=None):
+# A* Search algorithm with repeat-state checking and a time cutoff
+def astar_search(start, goal, grid, time_cutoff):
     visited = set()  # Set to store visited nodes
     queue = PriorityQueue()  # Priority queue for A* search
     start_node = Node(start[0], start[1], 0)
     queue.put(start_node)
     start_time = time.time()  # Start time to measure runtime
+    max_memory = 0  # Variable to track the maximum number of nodes held in memory
 
     while not queue.empty():
         current_node = queue.get()  # Get the node with the lowest cost
@@ -44,7 +45,7 @@ def astar_search(start, goal, grid, time_cutoff=None):
             path.reverse()  # Reverse the path to get it from start to goal
             end_time = time.time()
             runtime = (end_time - start_time) * 1000  # Calculate runtime in milliseconds
-            return path, len(visited), runtime
+            return path, len(visited), max_memory, runtime
 
         visited.add((current_node.row, current_node.col))  # Mark the node as visited
 
@@ -54,12 +55,13 @@ def astar_search(start, goal, grid, time_cutoff=None):
             if (0 <= r < len(grid)) and (0 <= c < len(grid[0])) and (r, c) not in visited and grid[r][c]:
                 cost = current_node.cost + grid[r][c] + manhattan_distance(Node(r, c, 0), goal)
                 queue.put(Node(r, c, cost, current_node))
+                max_memory = max(max_memory, queue.qsize())  # Update max memory
 
         # Check time cutoff
-        if time_cutoff is not None and (time.time() - start_time) * 1000 > time_cutoff:
-            return None, len(visited), None  # Time cutoff reached, no result
+        if (time.time() - start_time) * 1000 > time_cutoff:
+            return None, len(visited), max_memory, None  # Time cutoff reached, no result
 
-    return None, len(visited), None  # No path found
+    return None, len(visited), max_memory, None  # No path found
 
 if __name__ == "__main__":
     import sys
@@ -68,22 +70,27 @@ if __name__ == "__main__":
         print("Usage: python pathfinding.py my_map.txt astar time_cutoff(ms)")
         sys.exit(1)
 
-    my_map = sys.argv[1]
+    map_file = sys.argv[1]
     algorithm = sys.argv[2]
     time_cutoff = int(sys.argv[3])
 
-    dimensions, start, goal, grid = read_map(my_map)
+    dimensions, start, goal, grid = read_map(map_file)
 
     if algorithm == "astar":
-        path, nodes_expanded, runtime = astar_search(start, goal, grid, time_cutoff)
+        path, nodes_expanded, max_memory, runtime = astar_search(start, goal, grid, time_cutoff)
     else:
         print("Invalid algorithm choice. Use 'astar'.")
         sys.exit(1)
 
     if path is not None:
-        print("Path:", path)
-        print("Path Cost:", sum(grid[row][col] for row, col in path))
-        print("Nodes Expanded:", nodes_expanded)
-        print("Runtime (ms):", runtime)
+        print("Cost of the path:", sum(grid[row][col] for row, col in path))
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds:", runtime)
+        print("Path as a sequence of coordinates:", path)
     else:
-        print("No path found within the time cutoff.")
+        print("Cost of the path: -1")
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds: NULL")
+        print("Path as a sequence of coordinates: NULL")
