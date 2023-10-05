@@ -67,7 +67,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 4:
-        print("Usage: python A_Search.py my_map.txt astar time_cutoff(ms)")
+        print("Usage: python astar.py my_map.txt astar time_cutoff(ms)")
         sys.exit(1)
 
     map_file = sys.argv[1]

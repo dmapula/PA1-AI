@@ -1,6 +1,6 @@
 import sys
 from bfs_pathfinding import bfs_search, read_map
-from A_Search import astar_search, read_map
+from astar import astar_search, read_map
 
 def main():
     if len(sys.argv) != 4:
