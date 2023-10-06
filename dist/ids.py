@@ -72,7 +72,7 @@ def ids_search(start, goal, grid, time_cutoff):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python Ids.py my_map.txt ids time_cutoff(ms)")
+        print("Usage: python Ids.py my_map.txt ids time_cutoff(ms)")#if there is no code
         sys.exit(1)
 
     map_file = sys.argv[1]
