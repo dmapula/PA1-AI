@@ -1,6 +1,7 @@
 import sys
 from bfs_pathfinding import bfs_search, read_map
 from astar import astar_search, read_map
+from ids import ids_search  # Import the IDS function from ids.py
 
 def main():
     if len(sys.argv) != 4:
@@ -17,8 +18,10 @@ def main():
         path, visited, max_memory, runtime = bfs_search(start, goal, grid, time_cutoff)
     elif algorithm == "astar":
         path, visited, max_memory, runtime = astar_search(start, goal, grid, time_cutoff)
+    elif algorithm == "ids":
+        path, visited, max_memory, runtime = ids_search(start, goal, grid, time_cutoff)
     else:
-        print("Invalid algorithm choice. Use 'bfs' or 'astar'.")
+        print("Invalid algorithm choice. Use 'bfs', 'astar', or 'ids'.")
         sys.exit(1)
 
     if path is not None:
