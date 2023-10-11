@@ -1,7 +1,7 @@
 import sys
 from bfs_pathfinding import bfs_search, read_map
 from astar import astar_search, read_map
-from ids import ids_search  # Import the IDS function from ids.py
+from ids import ids_search
 
 def main():
     if len(sys.argv) != 4:
