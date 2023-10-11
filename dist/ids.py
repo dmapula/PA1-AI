@@ -1,91 +1,102 @@
+import time
+import sys
 
-class GridGraph:
-    def __init__(self, grid):
-        self.grid = grid
-        self.rows = len(grid)
-        self.cols = len(grid[0])
+# Define a class to represent nodes in the search tree
+class Node:
+    def __init__(self, row, col, cost, parent=None):
+        self.row = row
+        self.col = col
+        self.cost = cost
+        self.parent = parent
 
-    def is_valid_move(self, row, col):
-        return 0 <= row < self.rows and 0 <= col < self.cols and self.grid[row][col] == 1
+# Function to read the map data from a file and store source/goal nodes
+def read_map(filename):
+    with open(filename, 'r') as file:
+        dimensions = list(map(int, file.readline().split()))  # Read dimensions of the map
+        start = tuple(map(int, file.readline().split()))      # Read starting coordinates
+        goal = tuple(map(int, file.readline().split()))       # Read goal coordinates
+        grid = [list(map(int, line.split())) for line in file] # Read the grid map
+    return dimensions, start, goal, grid
 
-    def get_neighbors(self, row, col):
-        neighbors = []
-        moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
+# Depth-limited DFS function
+def depth_limited_dfs(start, goal, grid, depth_limit, time_cutoff, visited, start_time):
+    def dfs(node, depth):
+        nonlocal visited
+        visited.add((node.row, node.col))
+
+        if (node.row, node.col) == goal:
+            path = []
+            while node:
+                path.append((node.row, node.col))
+                node = node.parent
+            path.reverse()
+            return path
+
+        if depth <= 0 or (time.time() - start_time) * 1000 > time_cutoff:
+            return None
+
+        moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for dr, dc in moves:
-            new_row, new_col = row + dr, col + dc
-            if self.is_valid_move(new_row, new_col):
-                neighbors.append((new_row, new_col))
-        return neighbors
+            r, c = node.row + dr, node.col + dc
+            if (0 <= r < len(grid)) and (0 <= c < len(grid[0])) and (r, c) not in visited and grid[r][c]:
+                child = Node(r, c, 0, node)
+                result = dfs(child, depth - 1)
+                if result:
+                    return result
 
+    return dfs(Node(start[0], start[1], 0), depth_limit)
 
-def iterative_deepening_search(grid_graph, start, goal, max_depth):
-    for depth_limit in range(max_depth + 1):
-        visited = [[False for _ in range(grid_graph.cols)] for _ in range(grid_graph.rows)]
-        if dfs(grid_graph, start, goal, visited, depth_limit):
-            return True
-    return False
+# Iterative Deepening Search algorithm with time cut-off
+def ids_search(start, goal, grid, time_cutoff):
+    max_depth = 1
+    nodes_expanded = 0
+    max_memory = 0
+    runtime = 0
+    path = None
 
+    while True:
+        visited = set()  # Initialize the visited set for each iteration
+        start_time = time.time()  # Store the start time for this iteration
+        path = depth_limited_dfs(start, goal, grid, max_depth, time_cutoff, visited, start_time)
+        nodes_expanded += len(visited)
+        max_memory = max(max_memory, len(visited))
+        end_time = time.time()
+        runtime = (end_time - start_time) * 1000
 
-def dfs(grid_graph, node, goal, visited, depth_limit):
-    row, col = node
-    if (row, col) == goal:
-        return True
-    if depth_limit <= 0:
-        return False
-    if not visited[row][col]:
-        visited[row][col] = True
-        neighbors = grid_graph.get_neighbors(row, col)
-        for neighbor in neighbors:
-            if dfs(grid_graph, neighbor, goal, visited, depth_limit - 1):
-                return True
-    return False
+        if path or runtime > time_cutoff:
+            break
 
+        max_depth += 1
 
-# Read grid from file
-def read_grid_from_file(file_path):
-    with open(file_path, 'r') as file:
-        rows, cols = map(int, file.readline().strip().split())
-        grid = []
-        for _ in range(rows):
-            row = list(map(int, file.readline().strip().split()))
-            grid.append(row)
-        return GridGraph(grid)
+    return path, nodes_expanded, max_memory, runtime
 
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("Usage: python Ids.py my_map.txt ids time_cutoff(ms)")#if there is no code
+        sys.exit(1)
 
-# Test the IDS algorithm with grid from file
+    map_file = sys.argv[1]
+    algorithm = sys.argv[2]
+    time_cutoff = int(sys.argv[3])
 
-testcase0 = "dist/my_map.txt"  # Provide the correct path to your grid file
-grid_graph0 = read_grid_from_file(testcase0)
-start_node = (0, 0)  # Starting position
-goal_node = (4, 4)   # Goal position
-max_depth = 5         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph0, start_node,goal_node, max_depth)))
+    dimensions, start, goal, grid = read_map(map_file)
 
-testcase1 = "dist/5x5.txt"  # Provide the correct path to your grid file
-grid_graph1 = read_grid_from_file(testcase1)
-start_node = (0, 0)  # Starting position
-goal_node = (4, 4)   # Goal position
-max_depth = 5         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph1, start_node,goal_node, max_depth)))
+    if algorithm == "ids":
+        path, nodes_expanded, max_memory, runtime = ids_search(start, goal, grid, time_cutoff)
+    else:
+        print("Invalid algorithm choice. Use 'ids'.")
+        sys.exit(1)
 
-testcase2 = "dist/10x10.txt"  # Provide the correct path to your grid file
-grid_graph2 = read_grid_from_file(testcase2)
-start_node = (0, 0)  # Starting position
-goal_node = (9, 9)   # Goal position
-max_depth = 10         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph2, start_node,goal_node, max_depth)))
-
-testcase3 = 'dist/15x15.txt'  # Provide the correct path to your grid file
-grid_graph3 = read_grid_from_file(testcase3)
-start_node = (0, 0)  # Starting position
-goal_node = (14, 14)   # Goal position
-max_depth = 15         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph3, start_node,goal_node, max_depth)))
-
-testcase4 = 'dist/20x20.txt'  # Provide the correct path to your grid file
-grid_graph4 = read_grid_from_file(testcase4)
-start_node = (0, 0)  # Starting position
-goal_node = (19, 19)   # Goal position
-max_depth = 20         # Maximum depth limit
-print("Path exists from {} to {} within depth {}: {}".format(start_node, goal_node, max_depth,iterative_deepening_search(grid_graph4, start_node,goal_node, max_depth)))
+    if path is not None:
+        print("Cost of the path:", sum(grid[row][col] for row, col in path))
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds:", runtime)
+        print("Path as a sequence of coordinates:", path)
+    else:
+        print("Cost of the path: -1")
+        print("Number of nodes expanded:", nodes_expanded)
+        print("Maximum number of nodes held in memory:", max_memory)
+        print("Runtime of the algorithm in milliseconds: -1")
+        print("Path as a sequence of coordinates: NO PATH")
 
